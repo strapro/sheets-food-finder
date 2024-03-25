@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -34,8 +37,8 @@ func getConfig() *oauth2.Config {
 		RedirectURL:  "http://localhost:8080",
 		Scopes:       []string{"https://www.googleapis.com/auth/spreadsheets.readonly"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  os.Getenv("GOOGLE_AUTH_URL"),
-			TokenURL: os.Getenv("GOOGLE_TOKEN_URL"),
+			AuthURL:  os.Getenv("GOOGLE_AUTH_URI"),
+			TokenURL: os.Getenv("GOOGLE_TOKEN_URI"),
 		},
 	}
 }
@@ -54,14 +57,22 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 
 // Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
-
 	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code: %v", err)
-	}
+
+	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	fmt.Printf("If the browser does not open automatically go to the following link: \n%v\n", authURL)
+	openInBrowser(authURL)
+
+	server := &http.Server{}
+	server.Addr = strings.Replace(config.RedirectURL, "http://", "", 1)
+	server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authCode = r.URL.Query().Get("code")
+		io.WriteString(w, "Got the code! You can now close this tab.")
+
+		go server.Shutdown(context.Background())
+	})
+
+	server.ListenAndServe()
 
 	tok, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
