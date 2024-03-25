@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sheetsFoodFinder/pkg/authhelper"
 	"sheetsFoodFinder/pkg/models"
 	"sheetsFoodFinder/pkg/sheetshelper"
 	"time"
@@ -27,12 +28,15 @@ func main() {
 
 	// start := time.Now()
 
-	spreadsheetId := os.Getenv("SPREADSHEET_ID")
+	client := authhelper.GetClient()
 
-	srv, err := sheets.NewService(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+	srv, err := sheets.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
+
+	spreadsheetId := os.Getenv("SPREADSHEET_ID")
+	username := os.Getenv("USER_NAME")
 
 	// Create channels to receive the results
 	daysSelectionsChan := make(chan map[int]*models.DaySelections)
@@ -45,7 +49,7 @@ func main() {
 
 	// Start goroutine to get the row of the user
 	go func() {
-		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, os.Getenv("USER_NAME")) + 1
+		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, username) + 1
 	}()
 
 	// Receive the results from the channels
