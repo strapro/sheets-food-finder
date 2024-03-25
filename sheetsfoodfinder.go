@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sheetsFoodFinder/pkg/models"
 	"sheetsFoodFinder/pkg/sheetshelper"
 	"time"
 
@@ -24,6 +25,8 @@ func init() {
 func main() {
 	ctx := context.Background()
 
+	// start := time.Now()
+
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 
 	srv, err := sheets.NewService(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
@@ -31,11 +34,23 @@ func main() {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
 
-	// A map containing the selections for each day
-	daysSelections := sheetshelper.GetDaysSelections(srv, spreadsheetId)
+	// Create channels to receive the results
+	daysSelectionsChan := make(chan map[int]*models.DaySelections)
+	rowChan := make(chan int)
 
-	// Get the row of the user
-	row := sheetshelper.GetUserRow(srv, spreadsheetId, os.Getenv("USER_NAME")) + 1
+	// Start goroutine to get the selections for each day
+	go func() {
+		daysSelectionsChan <- sheetshelper.GetDaysSelections(srv, spreadsheetId)
+	}()
+
+	// Start goroutine to get the row of the user
+	go func() {
+		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, os.Getenv("USER_NAME")) + 1
+	}()
+
+	// Receive the results from the channels
+	daysSelections := <-daysSelectionsChan
+	row := <-rowChan
 
 	// Get the current day
 	weekday := int(time.Now().Weekday())
@@ -47,4 +62,7 @@ func main() {
 	for _, selection := range selections {
 		fmt.Println(selection)
 	}
+
+	// elapsed := time.Since(start)
+	// fmt.Printf("Time took %s\n", elapsed)
 }
