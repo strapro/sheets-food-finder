@@ -31,10 +31,15 @@ func GetClient() *http.Client {
 }
 
 func getConfig() *oauth2.Config {
+	port, err := getFreePort()
+	if err != nil {
+		log.Fatalf("Failed to get a free port: %v", err)
+	}
+
 	return &oauth2.Config{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  "http://localhost:8080",
+		RedirectURL:  fmt.Sprintf("http://localhost:%d", port),
 		Scopes:       []string{"https://www.googleapis.com/auth/spreadsheets.readonly"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  os.Getenv("GOOGLE_AUTH_URI"),
@@ -90,4 +95,16 @@ func saveToken(path string, token *oauth2.Token) {
 	}
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
+}
+
+func getFreePort() (port int, err error) {
+	var a *net.TCPAddr
+	if a, err = net.ResolveTCPAddr("tcp", "localhost:0"); err == nil {
+		var l *net.TCPListener
+		if l, err = net.ListenTCP("tcp", a); err == nil {
+			defer l.Close()
+			return l.Addr().(*net.TCPAddr).Port, nil
+		}
+	}
+	return
 }
