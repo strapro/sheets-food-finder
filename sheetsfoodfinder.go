@@ -35,8 +35,12 @@ func main() {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
 
-	spreadsheetId := os.Getenv("SPREADSHEET_ID")
-	username := os.Getenv("USER_NAME")
+	username := ""
+	if len(os.Args) > 1 {
+		username = os.Args[1]
+	} else {
+		username = os.Getenv("USER_NAME")
+	}
 
 	sheetName := models.GetWeekRange()
 
