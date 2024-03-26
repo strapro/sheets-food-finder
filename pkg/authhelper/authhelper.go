@@ -16,10 +16,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var clientID string
-var clientSecret string
-var authURL string
-var tokenURL string
+var ClientID string
+var ClientSecret string
+var AuthURL string
+var TokenURL string
 
 // Retrieve a token, saves the token, then returns the generated client.
 func GetClient() *http.Client {
@@ -43,30 +43,30 @@ func getConfig() *oauth2.Config {
 		log.Fatalf("Failed to get a free port: %v", err)
 	}
 
-	if clientID == "" {
-		clientID = os.Getenv("GOOGLE_CLIENT_ID")
+	if ClientID == "" {
+		ClientID = os.Getenv("GOOGLE_CLIENT_ID")
 	}
 
-	if clientSecret == "" {
-		clientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
+	if ClientSecret == "" {
+		ClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
 	}
 
-	if authURL == "" {
-		authURL = os.Getenv("GOOGLE_AUTH_URI")
+	if AuthURL == "" {
+		AuthURL = os.Getenv("GOOGLE_AUTH_URI")
 	}
 
-	if tokenURL == "" {
-		tokenURL = os.Getenv("GOOGLE_TOKEN_URI")
+	if TokenURL == "" {
+		TokenURL = os.Getenv("GOOGLE_TOKEN_URI")
 	}
 
 	return &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		ClientID:     ClientID,
+		ClientSecret: ClientSecret,
 		RedirectURL:  fmt.Sprintf("http://localhost:%d", port),
 		Scopes:       []string{"https://www.googleapis.com/auth/spreadsheets.readonly"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  authURL,
-			TokenURL: tokenURL,
+			AuthURL:  AuthURL,
+			TokenURL: TokenURL,
 		},
 	}
 }

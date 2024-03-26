@@ -15,14 +15,10 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-var spreadsheetId string
+var SpreadsheetId string
 
 func init() {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load(".env")
 }
 
 func main() {
@@ -37,8 +33,8 @@ func main() {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
 
-	if spreadsheetId == "" {
-		spreadsheetId = os.Getenv("SPREADSHEET_ID")
+	if SpreadsheetId == "" {
+		SpreadsheetId = os.Getenv("SPREADSHEET_ID")
 	}
 
 	username := ""
@@ -56,12 +52,12 @@ func main() {
 
 	// Start goroutine to get the selections for each day
 	go func() {
-		daysSelectionsChan <- sheetshelper.GetDaysSelections(srv, spreadsheetId, sheetName)
+		daysSelectionsChan <- sheetshelper.GetDaysSelections(srv, SpreadsheetId, sheetName)
 	}()
 
 	// Start goroutine to get the row of the user
 	go func() {
-		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, sheetName, username) + 1
+		rowChan <- sheetshelper.GetUserRow(srv, SpreadsheetId, sheetName, username) + 1
 	}()
 
 	// Receive the results from the channels
@@ -72,7 +68,7 @@ func main() {
 	weekday := int(time.Now().Weekday())
 
 	// Get the selections for the current day for the user
-	selections := sheetshelper.GetUserSelectionsForDay(srv, spreadsheetId, sheetName, row, *daysSelections[weekday])
+	selections := sheetshelper.GetUserSelectionsForDay(srv, SpreadsheetId, sheetName, row, *daysSelections[weekday])
 
 	// Print the selections
 	for _, selection := range selections {
