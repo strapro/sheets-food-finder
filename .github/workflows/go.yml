@@ -33,6 +33,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        goversion: 1.21.8
+        goversion: "https://dl.google.com/go/go1.21.8.linux-amd64.tar.gz"
         overwrite: TRUE
         ldflags: -X "main.SpreadsheetId=${{ env.SPREADSHEET_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientID=${{ env.GOOGLE_CLIENT_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientSecret=${{ env.GOOGLE_CLIENT_SECRET}}" -X "sheetsFoodFinder/pkg/authhelper.AuthURL=${{ env.GOOGLE_AUTH_URI}}" -X "sheetsFoodFinder/pkg/authhelper.TokenURL=${{ env.GOOGLE_TOKEN_URI}}"    
