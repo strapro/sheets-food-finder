@@ -27,10 +27,4 @@ jobs:
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         GOOGLE_AUTH_URI: ${{ secrets.GOOGLE_AUTH_URI }}
         GOOGLE_TOKEN_URI: ${{ secrets.GOOGLE_TOKEN_URI }}
-      run: go build \
-             -ldflags "-X main.SpreadsheetId=$SPREADSHEET_ID \
-               -X sheetsFoodFinder/pkg/authhelper.ClientID=$GOOGLE_CLIENT_ID \
-               -X sheetsFoodFinder/pkg/authhelper.ClientSecret=$GOOGLE_CLIENT_SECRET \
-               -X sheetsFoodFinder/pkg/authhelper.AuthURL=$GOOGLE_AUTH_URI \
-               -X sheetsFoodFinder/pkg/authhelper.TokenURL=$GOOGLE_TOKEN_URI" \
-             -o ./build sheetsfoodfinder.go
+      run: go build -ldflags "-X main.SpreadsheetId=$SPREADSHEET_ID -X sheetsFoodFinder/pkg/authhelper.ClientID=$GOOGLE_CLIENT_ID -X sheetsFoodFinder/pkg/authhelper.ClientSecret=$GOOGLE_CLIENT_SECRET -X sheetsFoodFinder/pkg/authhelper.AuthURL=$GOOGLE_AUTH_URI -X sheetsFoodFinder/pkg/authhelper.TokenURL=$GOOGLE_TOKEN_URI" -o ./build sheetsfoodfinder.go
