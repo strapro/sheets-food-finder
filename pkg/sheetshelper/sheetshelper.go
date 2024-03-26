@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sheetsFoodFinder/pkg/models"
+	"strings"
 
 	"google.golang.org/api/sheets/v4"
 )
@@ -26,6 +27,10 @@ func GetDaysSelections(srv *sheets.Service, spreadsheetId string, sheetName stri
 		var previousValue int = -1
 
 		for i, cell := range resp.Values[0] {
+			if strings.TrimSpace(cell.(string)) == "-" {
+				continue
+			}
+
 			// If the cell is not empty, then we have a new day
 			if cell != "" {
 				// If we have a previous value, then we can set the end index for the previous day
