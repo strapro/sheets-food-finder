@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+var spreadsheetId string
+
 func init() {
 	err := godotenv.Load(".env")
 
@@ -33,6 +35,10 @@ func main() {
 	srv, err := sheets.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
+	}
+
+	if spreadsheetId == "" {
+		spreadsheetId = os.Getenv("SPREADSHEET_ID")
 	}
 
 	username := ""
