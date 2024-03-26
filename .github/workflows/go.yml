@@ -1,0 +1,36 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - name: Build
+      env:
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        GOOGLE_AUTH_URI: ${{ secrets.GOOGLE_AUTH_URI }}
+        GOOGLE_TOKEN_URI: ${{ secrets.GOOGLE_TOKEN_URI }}
+      run: go build \
+             -ldflags "-X main.SpreadsheetId=$SPREADSHEET_ID \
+               -X sheetsFoodFinder/pkg/authhelper.ClientID=$GOOGLE_CLIENT_ID \
+               -X sheetsFoodFinder/pkg/authhelper.ClientSecret=$GOOGLE_CLIENT_SECRET \
+               -X sheetsFoodFinder/pkg/authhelper.AuthURL=$GOOGLE_AUTH_URI \
+               -X sheetsFoodFinder/pkg/authhelper.TokenURL=$GOOGLE_TOKEN_URI" \
+             -o ./build sheetsfoodfinder.go
