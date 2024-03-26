@@ -12,19 +12,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Dev
+    env:
+      SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_AUTH_URI: ${{ secrets.GOOGLE_AUTH_URI }}
+      GOOGLE_TOKEN_URI: ${{ secrets.GOOGLE_TOKEN_URI }}
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
+      
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Releaes  
+      uses: wangyoucao577/go-release-action@v1.16
       with:
-        go-version: '1.21.8'
-
-    - name: Build
-      env:
-        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        GOOGLE_AUTH_URI: ${{ secrets.GOOGLE_AUTH_URI }}
-        GOOGLE_TOKEN_URI: ${{ secrets.GOOGLE_TOKEN_URI }}
-      run: go build -ldflags "-X main.SpreadsheetId=$SPREADSHEET_ID -X sheetsFoodFinder/pkg/authhelper.ClientID=$GOOGLE_CLIENT_ID -X sheetsFoodFinder/pkg/authhelper.ClientSecret=$GOOGLE_CLIENT_SECRET -X sheetsFoodFinder/pkg/authhelper.AuthURL=$GOOGLE_AUTH_URI -X sheetsFoodFinder/pkg/authhelper.TokenURL=$GOOGLE_TOKEN_URI" -o ./build sheetsfoodfinder.go
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: 1.21.8
+        overwrite: TRUE
+        ldflags: -X "main.SpreadsheetId=${{ env.SPREADSHEET_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientID=${{ env.GOOGLE_CLIENT_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientSecret=${{ env.GOOGLE_CLIENT_SECRET}}" -X "sheetsFoodFinder/pkg/authhelper.AuthURL=${{ env.GOOGLE_AUTH_URI}}" -X "sheetsFoodFinder/pkg/authhelper.TokenURL=${{ env.GOOGLE_TOKEN_URI}}"    
