@@ -38,18 +38,20 @@ func main() {
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	username := os.Getenv("USER_NAME")
 
+	sheetName := models.GetWeekRange()
+
 	// Create channels to receive the results
 	daysSelectionsChan := make(chan map[int]*models.DaySelections)
 	rowChan := make(chan int)
 
 	// Start goroutine to get the selections for each day
 	go func() {
-		daysSelectionsChan <- sheetshelper.GetDaysSelections(srv, spreadsheetId)
+		daysSelectionsChan <- sheetshelper.GetDaysSelections(srv, spreadsheetId, sheetName)
 	}()
 
 	// Start goroutine to get the row of the user
 	go func() {
-		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, username) + 1
+		rowChan <- sheetshelper.GetUserRow(srv, spreadsheetId, sheetName, username) + 1
 	}()
 
 	// Receive the results from the channels
@@ -60,7 +62,7 @@ func main() {
 	weekday := int(time.Now().Weekday())
 
 	// Get the selections for the current day for the user
-	selections := sheetshelper.GetUserSelectionsForDay(srv, spreadsheetId, row, *daysSelections[weekday])
+	selections := sheetshelper.GetUserSelectionsForDay(srv, spreadsheetId, sheetName, row, *daysSelections[weekday])
 
 	// Print the selections
 	for _, selection := range selections {

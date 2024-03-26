@@ -1,6 +1,9 @@
 package models
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 var weekDaysMap = map[string]int{
 	"ΔΕΥΤΕΡΑ":   1,
@@ -20,4 +23,17 @@ func GetWeekDayIndex(weekDay string) int {
 	}
 
 	return -1
+}
+
+func GetWeekRange() string {
+	// Get date of previous Monday
+	startDate := time.Now()
+	for startDate.Weekday() != time.Monday {
+		startDate = startDate.AddDate(0, 0, -1)
+	}
+
+	// Get date of next Friday relative to the previous Monday
+	endDate := startDate.AddDate(0, 0, 4)
+
+	return startDate.Format("02/01") + "-" + endDate.Format("02/01")
 }

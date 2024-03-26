@@ -8,12 +8,13 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-func GetDaysSelections(srv *sheets.Service, spreadsheetId string) map[int]*models.DaySelections {
+func GetDaysSelections(srv *sheets.Service, spreadsheetId string, sheetName string) map[int]*models.DaySelections {
 	var daysSelections = make(map[int]*models.DaySelections)
 
 	// Read the first row of the sheet to try and figure out the selections for each day
 	// Also read the second row to get the end index for the last day and the selection names
-	readRange := "1:2"
+	readRange := fmt.Sprintf("%s!1:2", sheetName)
+
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve data from sheet: %v", err)
@@ -50,8 +51,9 @@ func GetDaysSelections(srv *sheets.Service, spreadsheetId string) map[int]*model
 	return daysSelections
 }
 
-func GetUserRow(srv *sheets.Service, spreadsheetId string, name string) int {
-	readRange := "A:A"
+func GetUserRow(srv *sheets.Service, spreadsheetId string, sheetName string, name string) int {
+	readRange := fmt.Sprintf("%s!A:A", sheetName)
+
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve data from sheet: %v", err)
@@ -70,11 +72,11 @@ func GetUserRow(srv *sheets.Service, spreadsheetId string, name string) int {
 	return -1
 }
 
-func GetUserSelectionsForDay(srv *sheets.Service, spreadsheetId string, row int, daySelections models.DaySelections) []string {
+func GetUserSelectionsForDay(srv *sheets.Service, spreadsheetId string, sheetName string, row int, daySelections models.DaySelections) []string {
 	selections := make([]string, 0)
 
 	// Read only the columns that contain the selections for the day only for the user
-	readRange := fmt.Sprintf("R%dC%d:R%dC%d", row, daySelections.Start, row, daySelections.End)
+	readRange := fmt.Sprintf("%s!R%dC%d:R%dC%d", sheetName, row, daySelections.Start, row, daySelections.End)
 
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
