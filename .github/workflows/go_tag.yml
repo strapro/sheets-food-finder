@@ -13,8 +13,17 @@ permissions:
   packages: write
 
 jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
 
+    - name: Create release
+      uses: ncipollo/release-action@v1
+  
   build:
+    needs: create_release
     runs-on: ubuntu-latest
     environment: Production
     env:
@@ -28,9 +37,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Create release
-      uses: ncipollo/release-action@v1
-    
     - name: Upload artifact  
       uses: wangyoucao577/go-release-action@v1.16
       with:
