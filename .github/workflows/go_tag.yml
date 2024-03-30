@@ -1,0 +1,39 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go Tag
+
+on:
+  push:
+    tags:
+    - '*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    environment: Production
+    env:
+      CGO_ENABLED: 0
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Releaes  
+      uses: wangyoucao577/go-release-action@v1.16
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: "https://dl.google.com/go/go1.21.8.linux-amd64.tar.gz"
+        overwrite: TRUE
+        ldflags: -X "main.SpreadsheetId=${{ secrets.SPREADSHEET_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientID=${{ secrets.GOOGLE_CLIENT_ID}}" -X "sheetsFoodFinder/pkg/authhelper.ClientSecret=${{ secrets.GOOGLE_CLIENT_SECRET}}" -X "sheetsFoodFinder/pkg/authhelper.AuthURL=${{ secrets.GOOGLE_AUTH_URI}}" -X "sheetsFoodFinder/pkg/authhelper.TokenURL=${{ secrets.GOOGLE_TOKEN_URI}}"    
