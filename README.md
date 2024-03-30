@@ -51,5 +51,5 @@ When executing the program for the first time, a browser will open requesting yo
 
 The program will then create a `token.json` file which will contain the `access_token` and the `refresh_token` for the selected account.
 
-> :warning: **This info will be stored unencrypted in your filesystem**: 
+> :warning: **This info will be stored unencrypted in your filesystem** 
 
